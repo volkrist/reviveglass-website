@@ -16,7 +16,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default function Gallery() {
-  const [active, setActive] = useState<GalleryCategoryKey>("before-after");
+  const [active, setActive] = useState<GalleryCategoryKey>("process");
   const cat = galleryCategories.find((c) => c.key === active)!;
 
   return (

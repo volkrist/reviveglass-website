@@ -16,7 +16,31 @@ export type GalleryCategory = {
 const photoPlaceholder = "/images/gallery/placeholder.svg";
 const videoPoster = "/images/gallery/video-poster.svg";
 
+const teamWork1 = "/images/pdf/team-work-1.jpg";
+const teamWork2 = "/images/pdf/team-work-2.jpg";
+
 export const galleryCategories: GalleryCategory[] = [
+  {
+    key: "process",
+    label: "Процесс работы",
+    items: [
+      {
+        type: "image" as const,
+        src: teamWork1,
+        alt: "Команда Revive Glass — реставрация стеклопакетов на фасаде",
+      },
+      {
+        type: "image" as const,
+        src: teamWork2,
+        alt: "Покраска оконных рам без демонтажа на объекте",
+      },
+      ...Array.from({ length: 4 }).map((_, i) => ({
+        type: "image" as const,
+        src: photoPlaceholder,
+        alt: `Процесс работы — фото ${i + 3}`,
+      })),
+    ],
+  },
   {
     key: "before-after",
     label: "До / После",
@@ -27,22 +51,25 @@ export const galleryCategories: GalleryCategory[] = [
     })),
   },
   {
-    key: "process",
-    label: "Процесс работы",
-    items: Array.from({ length: 6 }).map((_, i) => ({
-      type: "image" as const,
-      src: photoPlaceholder,
-      alt: `Процесс работы — фото ${i + 1}`,
-    })),
-  },
-  {
     key: "objects",
     label: "Объекты",
-    items: Array.from({ length: 6 }).map((_, i) => ({
-      type: "image" as const,
-      src: photoPlaceholder,
-      alt: `Объект ${i + 1}`,
-    })),
+    items: [
+      {
+        type: "image" as const,
+        src: teamWork1,
+        alt: "Объект — фасадное остекление",
+      },
+      {
+        type: "image" as const,
+        src: teamWork2,
+        alt: "Объект — оконные конструкции",
+      },
+      ...Array.from({ length: 4 }).map((_, i) => ({
+        type: "image" as const,
+        src: photoPlaceholder,
+        alt: `Объект ${i + 3}`,
+      })),
+    ],
   },
   {
     key: "video",

@@ -50,7 +50,8 @@ export default function Hero() {
     target: ref,
     offset: ["start start", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.15]);
   const orbsY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0.4]);
@@ -63,16 +64,42 @@ export default function Hero() {
     >
       <motion.div
         aria-hidden
-        style={{ y: bgY }}
-        className="absolute inset-0 -z-20"
+        style={{ y: bgY, scale: bgScale }}
+        className="absolute inset-0 -z-30"
       >
-        <div className="absolute inset-0 bg-hero-radial" />
-        <div className="absolute inset-0 bg-grid bg-grid opacity-[0.35] mask-fade-b" />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/images/pdf/pdf-bg-glass-facade.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "saturate(0.7) contrast(1.05) brightness(0.55)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(8,8,10,0.55) 0%, rgba(14,14,16,0.7) 45%, rgba(14,14,16,0.92) 88%, #0E0E10 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 50% 25%, rgba(43,179,217,0.18) 0%, transparent 60%)",
+          }}
+        />
       </motion.div>
 
-      <motion.div style={{ y: orbsY }} className="absolute inset-0 -z-10">
+      <motion.div style={{ y: orbsY }} className="absolute inset-0 -z-20">
         <FloatingOrbs />
       </motion.div>
+
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-grid bg-grid opacity-[0.18] mask-fade-b"
+      />
 
       <NoiseOverlay opacity={0.05} blend="overlay" />
 
@@ -81,7 +108,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(ellipse 90% 70% at 50% 35%, transparent 40%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.7) 100%)",
+            "radial-gradient(ellipse 100% 70% at 50% 35%, transparent 50%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.75) 100%)",
         }}
       />
 
@@ -125,7 +152,10 @@ export default function Hero() {
                   variants={lineUp}
                   className="block font-display italic font-light tracking-tightest"
                 >
-                  без <span className="brand-text not-italic font-extrabold">замены</span>
+                  без{" "}
+                  <span className="brand-text not-italic font-extrabold">
+                    замены
+                  </span>
                 </motion.span>
               </span>
             </h1>
@@ -134,8 +164,9 @@ export default function Hero() {
               variants={fadeUp}
               className="mt-10 max-w-xl text-base leading-relaxed text-muted md:text-lg"
             >
-              Шлифовка, полировка стеклопакетов и покраска оконных рам без демонтажа.
-              Возвращаем стёклам заводской блеск и обновляем рамы прямо на объекте.
+              Покраска оконных рам, шлифовка и полировка стеклопакетов на
+              фасадных конструкциях. Возвращаем заводской блеск стёклам и
+              обновляем рамы прямо на объекте, без демонтажа.
             </motion.p>
 
             <motion.div
