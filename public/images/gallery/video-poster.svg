@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08080A"/>
+      <stop offset="1" stop-color="#15171B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#g)"/>
+  <circle cx="600" cy="450" r="80" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+  <polygon points="580,415 580,485 645,450" fill="rgba(255,255,255,0.85)"/>
+  <text x="50%" y="80%" text-anchor="middle" font-family="Manrope, sans-serif" font-size="14" fill="rgba(255,255,255,0.4)" letter-spacing="4">VIDEO PLACEHOLDER</text>
+</svg>
