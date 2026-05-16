@@ -73,22 +73,22 @@ export default function Hero() {
           style={{
             backgroundImage: "url('/images/pdf/pdf-bg-glass-facade.jpg')",
             backgroundSize: "cover",
-            backgroundPosition: "center",
-            filter: "saturate(0.7) contrast(1.05) brightness(0.55)",
+            backgroundPosition: "center 35%",
+            filter: "saturate(0.75) contrast(1.08) brightness(0.58)",
           }}
         />
         <motion.div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(8,8,10,0.55) 0%, rgba(14,14,16,0.7) 45%, rgba(14,14,16,0.92) 88%, #0E0E10 100%)",
+              "linear-gradient(180deg, rgba(8,8,10,0.45) 0%, rgba(14,14,16,0.62) 50%, rgba(14,14,16,0.9) 88%, #0E0E10 100%)",
           }}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(60% 60% at 50% 25%, rgba(43,179,217,0.18) 0%, transparent 60%)",
+              "radial-gradient(55% 55% at 50% 22%, rgba(43,179,217,0.12) 0%, transparent 58%)",
           }}
         />
       </motion.div>
@@ -99,7 +99,7 @@ export default function Hero() {
 
       <motion.div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-grid opacity-[0.18] mask-fade-b"
+        className="absolute inset-0 -z-10 bg-grid opacity-[0.06] mask-fade-b"
       />
 
       <NoiseOverlay opacity={0.05} blend="overlay" />
@@ -109,7 +109,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(ellipse 100% 70% at 50% 35%, transparent 50%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.75) 100%)",
+            "radial-gradient(ellipse 100% 70% at 50% 35%, transparent 52%, rgba(0,0,0,0.32) 85%, rgba(0,0,0,0.62) 100%)",
         }}
       />
 
