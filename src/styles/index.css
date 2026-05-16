@@ -239,9 +239,18 @@
   top: 45% !important;
 }
 
-/* react-compare-image: handle glow */
-.ba-stage [data-testid="container"] > div > div:last-child {
-  /* The handle wrapper */
+/* react-compare-image: fixed height + cover */
+.ba-compare {
+  position: relative;
+  overflow: hidden;
+}
+.ba-compare [data-testid="container"] {
+  height: 100% !important;
+}
+.ba-compare [data-testid="container"] img {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
 }
 .ba-stage button,
 .ba-stage [role="slider"] {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, A11y, Keyboard } from "swiper/modules";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +22,9 @@ export default function Gallery() {
   return (
     <section id="gallery" className="section-pad relative">
       <Container>
-        <div className="flex flex-col items-start gap-10 md:flex-row md:items-end md:justify-between">
+        <motion.div
+          className="flex flex-col items-start gap-10 md:flex-row md:items-end md:justify-between"
+        >
           <SectionTitle
             eyebrow="Галерея"
             title={
@@ -50,7 +52,11 @@ export default function Gallery() {
                       <motion.span
                         layoutId="gallery-tab"
                         className="absolute inset-0 -z-0 rounded-full border border-white/10 bg-white/[0.06]"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30,
+                        }}
                       />
                     )}
                     <span className="relative z-10">{c.label}</span>
@@ -59,7 +65,7 @@ export default function Gallery() {
               })}
             </div>
           </FadeIn>
-        </div>
+        </motion.div>
       </Container>
 
       <FadeIn delay={0.2}>
@@ -87,7 +93,7 @@ export default function Gallery() {
                 slidesPerView={1.15}
                 centeredSlides
                 grabCursor
-                loop={cat.items.length > 4}
+                loop={cat.items.length > 3}
                 navigation
                 keyboard={{ enabled: true }}
                 pagination={{ clickable: true, dynamicBullets: true }}
@@ -100,12 +106,13 @@ export default function Gallery() {
               >
                 {cat.items.map((item, i) => (
                   <SwiperSlide key={`${cat.key}-${i}`}>
-                    <div className="group relative aspect-[4/3] overflow-hidden rounded-[24px] border border-white/[0.08] bg-bg-soft shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]">
+                    <div className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/[0.08] bg-bg-soft shadow-[0_30px_80px_-30px_rgba(0,0,0,0.7)]">
                       {item.type === "image" ? (
                         <img
                           src={item.src}
                           alt={item.alt}
                           loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.06]"
                         />
                       ) : (
@@ -118,9 +125,14 @@ export default function Gallery() {
 
                       <div
                         aria-hidden
-                        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+                        className="pointer-events-none absolute inset-0 bg-black/20 transition-opacity duration-700 group-hover:bg-black/10"
                       />
                       <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+                      />
+
+                      <motion.div
                         aria-hidden
                         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
                         style={{
@@ -129,24 +141,18 @@ export default function Gallery() {
                         }}
                       />
 
-                      <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3 text-[11px] uppercase tracking-[0.22em] text-white/85">
-                        <span>{cat.label}</span>
-                        <span className="font-display tracking-[0.28em] text-white/60">
+                      <motion.div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3 text-[11px] uppercase tracking-[0.22em] text-white/85">
+                        <span className="line-clamp-2 max-w-[70%]">{item.alt}</span>
+                        <span className="shrink-0 font-display tracking-[0.28em] text-white/60">
                           {String(i + 1).padStart(2, "0")}
                         </span>
-                      </div>
+                      </motion.div>
                     </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
             </motion.div>
           </AnimatePresence>
-
-          <Container>
-            <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted">
-              Фото и видео материалы будут добавлены — секция готова к загрузке.
-            </p>
-          </Container>
         </div>
       </FadeIn>
     </section>
@@ -162,41 +168,64 @@ function VideoTile({
   src: string;
   alt: string;
 }) {
-  if (!src) {
-    return (
-      <div className="relative h-full w-full">
-        <img
-          src={poster}
-          alt={alt}
-          loading="lazy"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            <span className="absolute inset-0 -z-10 rounded-full bg-brand/30 blur-xl" />
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/[0.08] backdrop-blur-xl transition-all duration-700 group-hover:scale-110 group-hover:border-brand/50">
-              <Play
-                size={22}
-                className="ml-1 text-white drop-shadow-[0_0_12px_rgba(43,179,217,0.8)]"
-                fill="white"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  const play = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    void v.play().then(() => setPlaying(true)).catch(() => {});
+  };
+
+  const pause = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.pause();
+    v.currentTime = 0;
+    setPlaying(false);
+  };
+
   return (
-    <video
-      src={src}
-      poster={poster}
-      muted
-      autoPlay
-      loop
-      playsInline
-      preload="metadata"
-      className="h-full w-full object-cover"
-      aria-label={alt}
-    />
+    <motion.div
+      className="relative h-full w-full"
+      onMouseEnter={play}
+      onMouseLeave={pause}
+      onFocus={play}
+      onBlur={pause}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        poster={poster}
+        muted
+        loop
+        playsInline
+        preload="none"
+        className="h-full w-full object-cover"
+        aria-label={alt}
+      />
+
+      <AnimatePresence>
+        {!playing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25"
+          >
+            <div className="relative">
+              <span className="absolute inset-0 -z-10 rounded-full bg-brand/30 blur-xl" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/30 bg-white/[0.08] backdrop-blur-xl">
+                <Play
+                  size={20}
+                  className="ml-0.5 text-white drop-shadow-[0_0_12px_rgba(43,179,217,0.8)]"
+                  fill="white"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

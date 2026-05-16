@@ -3,6 +3,8 @@ export type Service = {
   index: string;
   title: string;
   lede: string;
+  image: string;
+  imageAlt: string;
   steps: string[];
   extras: string[];
   price: { value: string; unit: string };
@@ -16,6 +18,8 @@ export const services: Service[] = [
     title: "Покраска оконных рам и центральных панелей",
     lede:
       "Работы без демонтажа конструкций — экономим время и сохраняем целостность остекления.",
+    image: "/images/before-after/case-05-after.jpg",
+    imageAlt: "Покраска оконной рамы и фурнитуры — готовый результат",
     steps: [
       "Очистка и обезжиривание поверхности",
       "Зачистка от старой краски",
@@ -36,6 +40,8 @@ export const services: Service[] = [
     title: "Реставрация стеклопакетов",
     lede:
       "Возвращаем стёклам первоначальный блеск и прозрачность без замены конструкции.",
+    image: "/images/before-after/case-06-after.jpg",
+    imageAlt: "Реставрация зоны у стеклопакета — готовый результат",
     steps: [
       "Диагностика состояния стеклопакета",
       "Локальная шлифовка повреждённых участков",

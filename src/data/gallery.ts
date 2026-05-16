@@ -5,7 +5,11 @@ export type GalleryItem = {
   alt: string;
 };
 
-export type GalleryCategoryKey = "before-after" | "process" | "objects" | "video";
+export type GalleryCategoryKey =
+  | "before-after"
+  | "process"
+  | "results"
+  | "video";
 
 export type GalleryCategory = {
   key: GalleryCategoryKey;
@@ -13,104 +17,116 @@ export type GalleryCategory = {
   items: GalleryItem[];
 };
 
-const photoPlaceholder = "/images/gallery/placeholder.svg";
-const videoPoster = "/images/gallery/video-poster.svg";
+const teamWindows = "/images/pdf/team-work-1.jpg";
+const teamWorkers = "/images/pdf/team-work-2.jpg";
 
-const teamWork1 = "/images/pdf/team-work-1.jpg";
-const teamWork2 = "/images/pdf/team-work-2.jpg";
+const ba = (n: number, kind: "before" | "after") =>
+  `/images/before-after/case-${String(n).padStart(2, "0")}-${kind}.jpg`;
 
 export const galleryCategories: GalleryCategory[] = [
+  {
+    key: "before-after",
+    label: "До / После",
+    items: [1, 2, 3, 4, 5, 6].map((n) => ({
+      type: "image" as const,
+      src: ba(n, "after"),
+      alt: `Результат работ — кейс ${n}`,
+    })),
+  },
   {
     key: "process",
     label: "Процесс работы",
     items: [
       {
         type: "image" as const,
-        src: teamWork1,
-        alt: "Команда Revive Glass — реставрация стеклопакетов на фасаде",
+        src: teamWindows,
+        alt: "Подготовка объекта — защита стеклопакетов перед покраской рам",
       },
       {
         type: "image" as const,
-        src: teamWork2,
-        alt: "Покраска оконных рам без демонтажа на объекте",
+        src: teamWorkers,
+        alt: "Команда Revive Glass — работы на высоте на объекте",
       },
-      ...Array.from({ length: 4 }).map((_, i) => ({
+      {
         type: "image" as const,
-        src: photoPlaceholder,
-        alt: `Процесс работы — фото ${i + 3}`,
-      })),
+        src: ba(2, "before"),
+        alt: "Покраска вертикальной рамы — этап маскировки и нанесения",
+      },
+      {
+        type: "image" as const,
+        src: ba(4, "before"),
+        alt: "Покраска панели у конвектора — подготовка поверхности",
+      },
+      {
+        type: "image" as const,
+        src: ba(5, "before"),
+        alt: "Покраска рамы и петель — состояние до работ",
+      },
+      {
+        type: "image" as const,
+        src: ba(1, "before"),
+        alt: "Покраска нижней панели — подготовка и маскировка",
+      },
     ],
   },
   {
-    key: "before-after",
-    label: "До / После",
-    items: Array.from({ length: 6 }).map((_, i) => ({
-      type: "image" as const,
-      src: photoPlaceholder,
-      alt: `Реставрация стеклопакета — пример ${i + 1}`,
-    })),
-  },
-  {
-    key: "objects",
-    label: "Объекты",
+    key: "results",
+    label: "Готовый результат",
     items: [
       {
         type: "image" as const,
-        src: teamWork1,
-        alt: "Объект — фасадное остекление",
+        src: ba(5, "after"),
+        alt: "Готовая покраска оконной рамы и фурнитуры",
       },
       {
         type: "image" as const,
-        src: teamWork2,
-        alt: "Объект — оконные конструкции",
+        src: ba(2, "after"),
+        alt: "Готовая покраска вертикальной оконной рамы",
       },
-      ...Array.from({ length: 4 }).map((_, i) => ({
+      {
         type: "image" as const,
-        src: photoPlaceholder,
-        alt: `Объект ${i + 3}`,
-      })),
+        src: ba(4, "after"),
+        alt: "Готовая покраска панели у радиатора",
+      },
+      {
+        type: "image" as const,
+        src: ba(1, "after"),
+        alt: "Готовая покраска нижней панели оконной конструкции",
+      },
+      {
+        type: "image" as const,
+        src: ba(3, "after"),
+        alt: "Восстановленный участок рамы после ремонта",
+      },
+      {
+        type: "image" as const,
+        src: ba(6, "after"),
+        alt: "Зона у стеклопакета после реставрационных работ",
+      },
     ],
   },
   {
     key: "video",
     label: "Видео",
-    items: Array.from({ length: 4 }).map((_, i) => ({
-      type: "video" as const,
-      src: "",
-      poster: videoPoster,
-      alt: `Видео процесса ${i + 1}`,
-    })),
-  },
-];
-
-export type BeforeAfterPair = {
-  id: string;
-  title: string;
-  caption: string;
-  before: string;
-  after: string;
-};
-
-export const beforeAfterPairs: BeforeAfterPair[] = [
-  {
-    id: "ba-1",
-    title: "Стеклопакет с глубокими царапинами",
-    caption: "Шлифовка и полировка без замены стекла",
-    before: "/images/before-after/placeholder-before-1.svg",
-    after: "/images/before-after/placeholder-after-1.svg",
-  },
-  {
-    id: "ba-2",
-    title: "Окалины от сварки",
-    caption: "Локальное удаление термических дефектов",
-    before: "/images/before-after/placeholder-before-2.svg",
-    after: "/images/before-after/placeholder-after-2.svg",
-  },
-  {
-    id: "ba-3",
-    title: "Покраска оконной рамы",
-    caption: "RAL по выбору, 2 слоя без демонтажа",
-    before: "/images/before-after/placeholder-before-3.svg",
-    after: "/images/before-after/placeholder-after-3.svg",
+    items: [
+      {
+        type: "video" as const,
+        src: "/videos/work-process-01.mp4",
+        poster: "/images/gallery/poster-work-01.jpg",
+        alt: "Процесс работ на объекте — покраска и подготовка",
+      },
+      {
+        type: "video" as const,
+        src: "/videos/work-process-02.mp4",
+        poster: "/images/gallery/poster-work-02.jpg",
+        alt: "Команда за работой на фасаде",
+      },
+      {
+        type: "video" as const,
+        src: "/videos/before-after-video-01.mp4",
+        poster: "/images/gallery/poster-ba-video-01.jpg",
+        alt: "Результат до и после на объекте",
+      },
+    ],
   },
 ];

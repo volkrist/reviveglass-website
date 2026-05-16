@@ -1,53 +1,55 @@
 import fs from "node:fs";
 import path from "node:path";
 import * as mupdf from "mupdf";
+import sharp from "sharp";
+
+/**
+ * Extract real assets from "КП 2026.pdf" and prepare a clean text-free
+ * glass-facade hero backdrop for the website.
+ *
+ * Output (public/images/pdf/):
+ *   page-1..page-4.jpg          — full pages, preview quality (debug)
+ *   team-windows.jpg            — left inset on page 1: object with large windows
+ *   team-workers.jpg            — right inset on page 1: 3 workers in branded t-shirts
+ *   facade-clean.jpg            — text-free glass facade backdrop (Unsplash, processed)
+ *   facade-clean-pdf.jpg        — text-free strip lifted from the PDF itself
+ *   pdf-bg-glass-facade.jpg     — alias of facade-clean.jpg (used by the site)
+ *   team-work-1.jpg, team-work-2.jpg — legacy aliases used by the site
+ */
 
 const PDF_PATH = "C:/Users/Volkr/Desktop/КП 2026.pdf";
 const OUT_DIR = path.resolve("public/images/pdf");
+const UNSPLASH_SRC = path.join(OUT_DIR, "_unsplash-facade.jpg");
+const UNSPLASH_URL =
+  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2560&q=82";
 
 if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
-const buffer = fs.readFileSync(PDF_PATH);
-const doc = mupdf.Document.openDocument(buffer, "application/pdf");
-
-const PAGE_W_PT = 720;
-const SCALE_HERO = 4;
-const SCALE_PHOTO = 5;
-
-function renderPageRegion(pageIdx, rectPt, scale, alpha = false) {
-  const page = doc.loadPage(pageIdx);
-  const matrix = mupdf.Matrix.scale(scale, scale);
-  const rectPx = mupdf.Rect.transform(rectPt, matrix);
-  const pixmap = page.toPixmap(
-    matrix,
-    mupdf.ColorSpace.DeviceRGB,
-    alpha,
-    true
-  );
-  const cropped = new mupdf.Pixmap(
-    mupdf.ColorSpace.DeviceRGB,
-    rectPx,
-    false
-  );
-  cropped.clear(255);
-  // Copy region
-  pixmap.destroy?.();
-  return { pixmap, rectPx };
+async function ensureUnsplash() {
+  if (fs.existsSync(UNSPLASH_SRC)) return true;
+  console.log("\n== Downloading Unsplash facade photo ==");
+  try {
+    const res = await fetch(UNSPLASH_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    fs.writeFileSync(UNSPLASH_SRC, buf);
+    console.log(`  -> ${path.basename(UNSPLASH_SRC)} (${(buf.byteLength / 1024).toFixed(1)} kb)`);
+    return true;
+  } catch (err) {
+    console.warn(`  ! failed: ${err.message}`);
+    return false;
+  }
 }
 
-const writeJPEG = (pixmap, outPath, quality = 86) => {
-  const jpeg = pixmap.asJPEG(quality);
-  fs.writeFileSync(outPath, Buffer.from(jpeg));
-  console.log(`  -> ${path.basename(outPath)} (${jpeg.byteLength} bytes)`);
-};
+const PREVIEW_SCALE = 2; // → 1440 x 810 page
+const HIRES_SCALE = 5; // → 3600 x 2025 page
 
-const writePNG = (pixmap, outPath) => {
-  const png = pixmap.asPNG();
-  fs.writeFileSync(outPath, Buffer.from(png));
-  console.log(`  -> ${path.basename(outPath)} (${png.byteLength} bytes)`);
-};
+const buffer = fs.readFileSync(PDF_PATH);
+const doc = mupdf.PDFDocument.openDocument(buffer, "application/pdf");
+const pageCount = doc.countPages();
+console.log(`pages: ${pageCount}`);
 
-const renderPage = (pageIdx, scale) => {
+function renderPage(pageIdx, scale) {
   const page = doc.loadPage(pageIdx);
   const matrix = mupdf.Matrix.scale(scale, scale);
   const pixmap = page.toPixmap(
@@ -56,90 +58,129 @@ const renderPage = (pageIdx, scale) => {
     false,
     true
   );
-  return pixmap;
-};
-
-console.log("== Rendering full pages ==");
-for (let i = 0; i < doc.countPages(); i++) {
-  const pix = renderPage(i, 2);
-  writeJPEG(pix, path.join(OUT_DIR, `page-${i + 1}.jpg`), 80);
-}
-
-console.log("\n== Rendering hero background (page 1, large) ==");
-const heroPix = renderPage(0, SCALE_HERO);
-writeJPEG(heroPix, path.join(OUT_DIR, "pdf-bg-glass-facade.jpg"), 86);
-console.log(`  size: ${heroPix.getWidth()}x${heroPix.getHeight()}`);
-
-console.log("\n== Cropping team photos from page 1 ==");
-const photoBoxes = [
-  { name: "team-work-1.jpg", bbox: { x: 84, y: 196, w: 252, h: 189 } },
-  { name: "team-work-2.jpg", bbox: { x: 455, y: 199, w: 222, h: 183 } },
-];
-
-const page1HiRes = renderPage(0, SCALE_PHOTO);
-console.log(`page1 hires: ${page1HiRes.getWidth()}x${page1HiRes.getHeight()}`);
-
-const { PNG } = await import("pngjs");
-
-function pixmapToPng(pixmap) {
-  const png = new PNG({
-    width: pixmap.getWidth(),
-    height: pixmap.getHeight(),
-  });
-  const samples = pixmap.getPixels();
-  // pixmap.getPixels() returns RGB or RGBA depending on alpha
   const w = pixmap.getWidth();
   const h = pixmap.getHeight();
+  const samplesRaw = pixmap.getPixels();
+  const samples = Buffer.isBuffer(samplesRaw)
+    ? samplesRaw
+    : Buffer.from(
+        samplesRaw.buffer,
+        samplesRaw.byteOffset,
+        samplesRaw.byteLength
+      );
   const stride = pixmap.getStride();
-  const n = pixmap.getNumberOfComponents();
-  const hasAlpha = pixmap.getAlpha?.() ?? false;
+  const channels = pixmap.getNumberOfComponents();
+  const tight = Buffer.alloc(w * h * 3);
   for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const srcOff = y * stride + x * (n + (hasAlpha ? 1 : 0));
-      const dstOff = (y * w + x) * 4;
-      png.data[dstOff] = samples[srcOff];
-      png.data[dstOff + 1] = samples[srcOff + 1];
-      png.data[dstOff + 2] = samples[srcOff + 2];
-      png.data[dstOff + 3] = hasAlpha ? samples[srcOff + 3] : 255;
+    const srcOff = y * stride;
+    const dstOff = y * w * 3;
+    if (channels === 3 && stride === w * 3) {
+      samples.copy(tight, dstOff, srcOff, srcOff + w * 3);
+    } else {
+      for (let x = 0; x < w; x++) {
+        tight[dstOff + x * 3] = samples[srcOff + x * channels];
+        tight[dstOff + x * 3 + 1] = samples[srcOff + x * channels + 1];
+        tight[dstOff + x * 3 + 2] = samples[srcOff + x * channels + 2];
+      }
     }
   }
-  return png;
+  return { width: w, height: h, data: tight };
 }
 
-const fullPng = pixmapToPng(page1HiRes);
+const asRaw = (rgb) =>
+  sharp(rgb.data, {
+    raw: { width: rgb.width, height: rgb.height, channels: 3 },
+  });
 
-const jpegEncoder = await import("jpeg-js").catch(() => null);
+const saveSize = (p) => {
+  const s = fs.statSync(p).size;
+  return `${(s / 1024).toFixed(1)} kb`;
+};
 
-function cropPng(src, x, y, w, h) {
-  const dst = new PNG({ width: w, height: h });
-  for (let row = 0; row < h; row++) {
-    const srcOff = ((y + row) * src.width + x) * 4;
-    const dstOff = row * w * 4;
-    src.data.copy(dst.data, dstOff, srcOff, srcOff + w * 4);
-  }
-  return dst;
+console.log("\n== Rendering page previews ==");
+for (let i = 0; i < pageCount; i++) {
+  const pix = renderPage(i, PREVIEW_SCALE);
+  const out = path.join(OUT_DIR, `page-${i + 1}.jpg`);
+  await asRaw(pix).jpeg({ quality: 80, mozjpeg: true }).toFile(out);
+  console.log(`  -> page-${i + 1}.jpg  ${pix.width}x${pix.height}  ${saveSize(out)}`);
 }
 
-for (const c of photoBoxes) {
-  const sx = Math.round(c.bbox.x * SCALE_PHOTO);
-  const sy = Math.round(c.bbox.y * SCALE_PHOTO);
-  const sw = Math.round(c.bbox.w * SCALE_PHOTO);
-  const sh = Math.round(c.bbox.h * SCALE_PHOTO);
-  console.log(`  ${c.name}: ${sw}x${sh} from (${sx},${sy})`);
-  const cropped = cropPng(fullPng, sx, sy, sw, sh);
+console.log("\n== Cropping team photos from page 1 (hi-res) ==");
+const page1 = renderPage(0, HIRES_SCALE);
+console.log(`  hi-res: ${page1.width}x${page1.height}`);
 
-  if (jpegEncoder) {
-    const enc = jpegEncoder.default ?? jpegEncoder;
-    const jpegData = enc.encode({ data: cropped.data, width: sw, height: sh }, 88);
-    fs.writeFileSync(path.join(OUT_DIR, c.name), jpegData.data);
-    console.log(`    -> ${c.name} (${jpegData.data.byteLength} bytes JPG)`);
-  } else {
-    const out = path.join(OUT_DIR, c.name.replace(".jpg", ".png"));
-    await new Promise((res, rej) =>
-      cropped.pack().pipe(fs.createWriteStream(out)).on("finish", res).on("error", rej)
-    );
-    console.log(`    -> ${path.basename(out)} (PNG fallback)`);
-  }
+// Coordinates measured on the 1440x810 preview (page-1.jpg).
+// HIRES_SCALE/PREVIEW_SCALE = 2.5
+const SR = HIRES_SCALE / PREVIEW_SCALE;
+const previewBoxes = {
+  // Empty room with the large windows (left inset on the title page)
+  windows: { x: 132, y: 388, w: 420, h: 348 },
+  // Three workers in light t-shirts with the bird logo (right inset)
+  workers: { x: 825, y: 388, w: 505, h: 348 },
+};
+
+async function cropFromHires(box, outName) {
+  const x = Math.round(box.x * SR);
+  const y = Math.round(box.y * SR);
+  const w = Math.round(box.w * SR);
+  const h = Math.round(box.h * SR);
+  const out = path.join(OUT_DIR, outName);
+  await asRaw(page1)
+    .extract({ left: x, top: y, width: w, height: h })
+    .jpeg({ quality: 90, mozjpeg: true })
+    .toFile(out);
+  console.log(`  -> ${outName}  ${w}x${h}  ${saveSize(out)}`);
+}
+
+await cropFromHires(previewBoxes.windows, "team-windows.jpg");
+await cropFromHires(previewBoxes.workers, "team-workers.jpg");
+
+// Legacy aliases used by the site code
+fs.copyFileSync(
+  path.join(OUT_DIR, "team-windows.jpg"),
+  path.join(OUT_DIR, "team-work-1.jpg")
+);
+fs.copyFileSync(
+  path.join(OUT_DIR, "team-workers.jpg"),
+  path.join(OUT_DIR, "team-work-2.jpg")
+);
+
+console.log("\n== Building text-free PDF facade strip ==");
+// Bottom of page 1 (below the inset photos) is pure facade with no text.
+// We use this as a back-up backdrop derived from the PDF itself.
+const STRIP_PREVIEW = { x: 0, y: 730, w: 1440, h: 80 };
+{
+  const x = Math.round(STRIP_PREVIEW.x * SR);
+  const y = Math.round(STRIP_PREVIEW.y * SR);
+  const w = Math.round(STRIP_PREVIEW.w * SR);
+  const h = Math.round(STRIP_PREVIEW.h * SR);
+  const out = path.join(OUT_DIR, "facade-clean-pdf.jpg");
+  await asRaw(page1)
+    .extract({ left: x, top: y, width: w, height: h })
+    .resize({ width: 2560, height: 1440, fit: "cover", position: "center" })
+    .modulate({ brightness: 0.78, saturation: 0.6 })
+    .blur(0.4)
+    .jpeg({ quality: 84, mozjpeg: true })
+    .toFile(out);
+  console.log(`  -> facade-clean-pdf.jpg  2560x1440  ${saveSize(out)}`);
+}
+
+console.log("\n== Building hero backdrop (Unsplash architectural photo) ==");
+const haveUnsplash = await ensureUnsplash();
+if (!haveUnsplash) {
+  console.warn("  ! Skipping facade-clean.jpg generation");
+} else {
+  const out = path.join(OUT_DIR, "facade-clean.jpg");
+  await sharp(UNSPLASH_SRC)
+    .resize({ width: 2560, height: 1440, fit: "cover", position: "center" })
+    .modulate({ brightness: 0.62, saturation: 0.55 })
+    .linear(1.05, -10)
+    .jpeg({ quality: 84, mozjpeg: true })
+    .toFile(out);
+  console.log(`  -> facade-clean.jpg  2560x1440  ${saveSize(out)}`);
+
+  fs.copyFileSync(out, path.join(OUT_DIR, "pdf-bg-glass-facade.jpg"));
+  console.log(`  -> pdf-bg-glass-facade.jpg (alias)`);
 }
 
 console.log("\nDone.");

@@ -9,7 +9,7 @@ import {
 import Container from "../ui/Container";
 import FadeIn from "../ui/FadeIn";
 import NoiseOverlay from "../ui/NoiseOverlay";
-import { beforeAfterPairs } from "../../data/gallery";
+import { beforeAfterPairs } from "../../data/beforeAfter";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -60,7 +60,7 @@ export default function BeforeAfter() {
     <section
       ref={ref}
       id="before-after"
-      className="relative isolate overflow-hidden py-32 md:py-40 lg:py-48"
+      className="relative isolate overflow-hidden py-16 md:py-20 lg:py-24"
     >
       <div
         aria-hidden
@@ -83,12 +83,12 @@ export default function BeforeAfter() {
               <span className="h-px w-8 bg-white/30" />
               До и После
             </span>
-            <h2 className="display-h2 mt-5 text-white text-balance">
+            <h2 className="display-h2 mt-4 text-white text-balance">
               Двигайте шторку —
               <br className="hidden md:block" />
               <span className="brand-text">видно результат</span>
             </h2>
-            <p className="mt-6 max-w-xl text-base text-muted md:text-lg">
+            <p className="mt-4 max-w-xl text-sm text-muted md:text-base">
               Реальные результаты работ. Тяните разделитель — состояние
               стеклопакета или рамы до и после реставрации, без замены конструкций.
             </p>
@@ -104,9 +104,9 @@ export default function BeforeAfter() {
         </div>
       </Container>
 
-      <motion.div style={{ y: stageY }} className="relative mt-14 md:mt-20">
+      <motion.div style={{ y: stageY }} className="relative mt-8 md:mt-10">
         <Container className="relative">
-          <div className="relative">
+          <div className="relative mx-auto max-w-4xl">
             <div
               aria-hidden
               className="pointer-events-none absolute -left-6 -right-6 -top-8 -bottom-8 -z-10 rounded-[40px] opacity-60 blur-3xl"
@@ -116,13 +116,13 @@ export default function BeforeAfter() {
               }}
             />
 
-            <div className="ba-stage relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-bg-soft shadow-[0_60px_120px_-40px_rgba(0,0,0,0.8)]">
+            <div className="ba-stage relative overflow-hidden rounded-2xl border border-white/[0.08] bg-bg-soft shadow-[0_40px_80px_-30px_rgba(0,0,0,0.75)] md:rounded-3xl">
               <div className="absolute left-6 top-6 z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3.5 py-1.5 text-[10px] uppercase tracking-[0.28em] text-white/85 backdrop-blur-md">
                 <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
-                ДО
+                Было
               </div>
               <div className="absolute right-6 top-6 z-20 inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/15 px-3.5 py-1.5 text-[10px] uppercase tracking-[0.28em] text-white backdrop-blur-md">
-                ПОСЛЕ
+                Стало
                 <span className="h-1.5 w-1.5 rounded-full bg-brand shadow-[0_0_10px_rgba(43,179,217,0.9)]" />
               </div>
 
@@ -133,13 +133,13 @@ export default function BeforeAfter() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.99 }}
                   transition={{ duration: 0.7, ease: EASE }}
-                  className="aspect-[16/10] w-full md:aspect-[21/10]"
+                  className="ba-compare h-[min(58vh,600px)] w-full sm:h-[min(62vh,680px)] md:h-[min(65vh,760px)]"
                 >
                   <ReactCompareImage
                     leftImage={pair.before}
                     rightImage={pair.after}
                     sliderLineColor="rgba(255,255,255,0.85)"
-                    sliderLineWidth={1.5}
+                    sliderLineWidth={2}
                     handle={<CompareHandle />}
                     hover={false}
                   />
@@ -148,7 +148,7 @@ export default function BeforeAfter() {
 
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 rounded-[28px]"
+                className="pointer-events-none absolute inset-0 rounded-2xl md:rounded-3xl"
                 style={{
                   background:
                     "radial-gradient(120% 80% at 50% 50%, transparent 70%, rgba(0,0,0,0.45) 100%)",
@@ -158,18 +158,18 @@ export default function BeforeAfter() {
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg/40 to-transparent"
               />
-              <div className="absolute bottom-6 left-6 right-6 z-20 flex flex-col items-start gap-1 text-white">
+              <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-col items-start gap-0.5 text-white md:bottom-5 md:left-5 md:right-5">
                 <div className="text-[10px] uppercase tracking-[0.28em] text-white/60">
                   {String(active + 1).padStart(2, "0")} · {pair.title}
                 </div>
-                <div className="font-display text-base font-medium md:text-lg">
+                <div className="font-display text-sm font-medium md:text-base">
                   {pair.caption}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:mt-14">
+          <div className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-2 md:mt-8 md:gap-3">
             {beforeAfterPairs.map((p, i) => {
               const isActive = i === active;
               return (
@@ -177,7 +177,7 @@ export default function BeforeAfter() {
                   key={p.id}
                   type="button"
                   onClick={() => setActive(i)}
-                  className={`group relative flex items-center gap-3 rounded-full border px-4 py-2.5 transition-all duration-500 md:px-5 md:py-3 ${
+                  className={`group relative flex items-center gap-2 rounded-full border px-3 py-2 transition-all duration-500 md:gap-3 md:px-4 md:py-2.5 ${
                     isActive
                       ? "border-brand/40 bg-brand/[0.08] shadow-[0_0_40px_-10px_rgba(43,179,217,0.5)]"
                       : "border-white/[0.08] bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.05]"
@@ -191,7 +191,7 @@ export default function BeforeAfter() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
-                    className={`text-sm ${
+                    className={`text-xs md:text-sm ${
                       isActive ? "text-white" : "text-white/70"
                     }`}
                   >

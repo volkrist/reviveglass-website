@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Check, ShieldCheck, ArrowUpRight } from "lucide-react";
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
@@ -49,6 +50,23 @@ export default function Services() {
                     Гарантия {s.warranty}
                   </span>
                 </div>
+
+                <motion.div
+                  className="relative mt-8 aspect-[16/10] overflow-hidden rounded-3xl border border-white/[0.08]"
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <img
+                    src={s.image}
+                    alt={s.imageAlt}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.05]"
+                  />
+                  <motion.div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-black/10"
+                  />
+                </motion.div>
 
                 <h3 className="mt-8 font-display text-3xl font-bold leading-[1.05] tracking-tightish text-white md:text-4xl">
                   {s.title}

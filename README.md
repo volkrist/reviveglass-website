@@ -1,117 +1,151 @@
-# REVIVE GLASS — Premium Landing
+# REVIVE GLASS — сайт реставрации стеклопакетов
 
-Премиальный одностраничный лендинг для компании REVIVE GLASS — реставрация стеклопакетов и покраска оконных рам в Москве и МО.
+Премиальный лендинг для компании **Revive Glass**: покраска оконных рам и реставрация стеклопакетов **без демонтажа** — Москва и Московская область.
+
+> Реальные фото и видео с объектов, интерактивное «До / После», галерея работ и форма заявки.
+
+---
+
+## Превью
+
+### Главный экран
+
+![Hero — главный экран](docs/screenshots/hero.png)
+
+### Услуги
+
+![Услуги](docs/screenshots/services.png)
+
+### До и После
+
+![До и После — слайдер сравнения](docs/screenshots/before-after.png)
+
+### Галерея
+
+![Галерея работ](docs/screenshots/gallery.png)
+
+### Процесс и условия
+
+| Процесс работы | Условия сотрудничества |
+|:---:|:---:|
+| ![Как мы работаем](docs/screenshots/process.png) | ![Условия](docs/screenshots/conditions.png) |
+
+### Что реставрируем · Контакты · Подвал
+
+![Что мы реставрируем](docs/screenshots/what-we-restore.png)
+
+![Контакты и заявка](docs/screenshots/contacts.png)
+
+![Подвал сайта](docs/screenshots/footer.png)
+
+---
+
+## Возможности сайта
+
+| Раздел | Что внутри |
+|--------|------------|
+| **Hero** | Видеофон процесса работ, CTA «Рассчитать» / Telegram / звонок |
+| **Услуги** | Покраска рам · реставрация стекла — с фото результатов |
+| **До / После** | 6 кейсов, drag-слайдер «Было → Стало» |
+| **Галерея** | До/После · Процесс · Готовый результат · Видео |
+| **Процесс** | 5 шагов от заявки до гарантии |
+| **Условия** | Смета, договор, оплата, документы для юрлиц |
+| **Контакты** | Форма заявки, телефоны, Telegram, email |
+
+---
 
 ## Стек
 
-- Vite + React 18 + TypeScript
-- Tailwind CSS
-- Framer Motion (анимации)
-- Swiper (галерея)
-- react-compare-image (До / После)
-- react-hook-form (форма заявки)
-- Lucide React (иконки)
-- @fontsource/unbounded + @fontsource/manrope (шрифты с кириллицей)
+- **React 18** + **TypeScript**
+- **Vite 5** — сборка и dev-сервер
+- **Tailwind CSS** — тёмная премиальная тема
+- **Framer Motion** — анимации и параллакс
+- **Swiper** — карусель галереи
+- **react-compare-image** — сравнение до/после
 
-## Запуск
+---
+
+## Быстрый старт
 
 ```bash
+# клонировать репозиторий
+git clone https://github.com/volkrist/reviveglass-website.git
+cd reviveglass-website
+
+# установить зависимости
 npm install
-npm run dev      # dev-сервер на http://localhost:5173
-npm run build    # production-билд в dist/
-npm run preview  # локальный просмотр билда
+
+# запустить локально
+npm run dev
 ```
 
-## Структура
+Откройте в браузере: **http://localhost:5173**
+
+### Сборка для продакшена
+
+```bash
+npm run build    # папка dist/
+npm run preview  # проверка сборки на :4173
+```
+
+---
+
+## Медиа в проекте
 
 ```
 public/
-  images/
-    logo-white.png        белый логотип для тёмного фона
-    logo-dark.png         тёмный логотип для светлого фона
-    hero/                 фоны hero (положить сюда)
-    gallery/              фото галереи (заменить плейсхолдеры)
-    before-after/         фото до/после (заменить плейсхолдеры)
-  videos/                 видео в галерею (.mp4, без звука)
-  favicon.png
-
-src/
-  components/
-    sections/             секции лендинга
-      Hero.tsx
-      WhatWeRestore.tsx
-      Services.tsx
-      BeforeAfter.tsx
-      Gallery.tsx
-      HowWeWork.tsx
-      Conditions.tsx
-      Contacts.tsx
-      Footer.tsx
-    ui/                   UI-примитивы
-      Header.tsx
-      Container.tsx
-      Button.tsx
-      GlassCard.tsx
-      SectionTitle.tsx
-      FadeIn.tsx
-  data/                   контент (тексты, цены, контакты)
-    contacts.ts
-    services.ts
-    advantages.ts
-    steps.ts
-    conditions.ts
-    gallery.ts
-  styles/index.css
-  App.tsx
-  main.tsx
+├── images/
+│   ├── before-after/     # 6 пар «было / стало» (case-01 … case-06)
+│   ├── gallery/          # постеры для видео
+│   └── pdf/              # фото бригады и фасада с объектов
+└── videos/
+    ├── work-process-01.mp4      # фон Hero
+    ├── work-process-02.mp4      # галерея
+    └── before-after-video-01.mp4  # галерея
 ```
 
-## Как добавить ваши материалы
+Данные секций: `src/data/beforeAfter.ts`, `src/data/gallery.ts`, `src/data/services.ts`.
 
-### Фото в галерею
+---
 
-1. Положите файлы в `public/images/gallery/` (например, `01.jpg`, `02.jpg`, ...).
-2. В `src/data/gallery.ts` отредактируйте массив `galleryCategories[].items` — замените `placeholder.svg` на пути к вашим фото.
+## Структура кода
 
-### До / После
+```
+src/
+├── components/
+│   ├── sections/    # Hero, Services, BeforeAfter, Gallery, Contacts…
+│   └── ui/          # Container, Button, GlassCard…
+├── data/            # контент и пути к медиа
+└── styles/          # глобальные стили, Tailwind
+```
 
-1. Положите пары фото в `public/images/before-after/` (например, `kitchen-before.jpg`, `kitchen-after.jpg`).
-2. В `src/data/gallery.ts` отредактируйте `beforeAfterPairs` — укажите ваши пути.
+---
 
-### Видео
+## Скрипты
 
-1. Положите MP4-файлы в `public/videos/` (рекомендуется H.264, без звука, до 10 МБ).
-2. Положите кадр-обложку (poster) в `public/images/gallery/` для каждого видео.
-3. В `src/data/gallery.ts` в категории `video` укажите `src: "/videos/your-file.mp4"` и `poster: "/images/gallery/your-poster.jpg"`.
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Dev-сервер с hot reload |
+| `npm run build` | TypeScript + production build |
+| `npm run preview` | Просмотр сборки |
+| `npm run lint` | Проверка типов |
 
-### Логотип
+---
 
-Файлы `public/images/logo-white.png` и `logo-dark.png` уже на месте — при необходимости замените на финальные версии (PNG с прозрачным фоном, ~512px по большей стороне).
+## Контакты компании
 
-### Контент
+- **Сергей** (руководитель): +7 (909) 989-40-07  
+- **Руслан** (менеджер по объектам): +7 (985) 255-20-30  
+- **Telegram:** [@likrasss](https://t.me/likrasss)  
+- **Email:** pokraspolir@yandex.ru  
+- **Регион:** Москва и Московская область · выезд бесплатно  
 
-Все тексты, цены, телефоны вынесены в `src/data/`. Меняются без касания JSX.
+---
 
-## Форма заявки
+## Репозиторий
 
-Сейчас форма в секции «Контакты» работает как **визуальная заглушка** — после отправки показывает success-сообщение, данные логируются в консоль (`console.log`).
+**GitHub:** [github.com/volkrist/reviveglass-website](https://github.com/volkrist/reviveglass-website)
 
-Для реального приёма заявок подключите один из вариантов:
+---
 
-- **EmailJS** (`@emailjs/browser`) — отправка на pokraspolir@yandex.ru без бэкенда.
-- **Telegram bot webhook** — мгновенно в Telegram владельцу через бота от @BotFather.
-- **Formspree** или другой no-code сервис.
-
-Точка для подключения — функция `onSubmit` в [src/components/sections/Contacts.tsx](src/components/sections/Contacts.tsx).
-
-## Палитра
-
-- `#0E0E10` — основной фон
-- `#15171B` — secondary
-- `#FFFFFF` — текст
-- `#A1A1AA` — приглушённый текст
-- `#2BB3D9 → #1B6E8C` — бренд-градиент
-
-## Деплой
-
-Папка `dist/` после `npm run build` — статика, заливается на любой хостинг (Vercel, Netlify, GitHub Pages, Beget, Reg.ru и т. д.).
+© Revive Glass · Лендинг для презентации реальных работ компании

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -11,6 +11,9 @@ import Button from "../ui/Button";
 import FloatingOrbs from "../ui/FloatingOrbs";
 import NoiseOverlay from "../ui/NoiseOverlay";
 import { contacts, managers } from "../../data/contacts";
+
+const HERO_VIDEO = "/videos/work-process-01.mp4";
+const HERO_FALLBACK_IMAGE = "/images/pdf/pdf-bg-glass-facade.jpg";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -46,6 +49,10 @@ const fadeUp: Variants = {
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -55,6 +62,8 @@ export default function Hero() {
   const orbsY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0.4]);
+
+  const showVideo = videoReady && !videoFailed;
 
   return (
     <section
@@ -67,27 +76,58 @@ export default function Hero() {
         style={{ y: bgY, scale: bgScale }}
         className="absolute inset-0 -z-30"
       >
-        <div
+        <video
+          ref={videoRef}
+          src={HERO_VIDEO}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          onLoadedData={() => setVideoReady(true)}
+          onError={() => setVideoFailed(true)}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+            showVideo ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            filter: "saturate(0.7) contrast(1.05) brightness(0.45)",
+          }}
+        />
+
+        <motion.div
           className="absolute inset-0"
           style={{
-            backgroundImage: "url('/images/pdf/pdf-bg-glass-facade.jpg')",
+            backgroundImage: `url('${HERO_FALLBACK_IMAGE}')`,
             backgroundSize: "cover",
-            backgroundPosition: "center",
-            filter: "saturate(0.7) contrast(1.05) brightness(0.55)",
+            backgroundPosition: "center 30%",
+            filter: "saturate(0.55) contrast(1.08) brightness(0.5)",
+          }}
+          animate={{ opacity: showVideo ? 0 : 1 }}
+          transition={{ duration: 1 }}
+        />
+
+        <motion.div
+          className="absolute inset-0"
+          animate={{ opacity: showVideo ? 0 : 1 }}
+          transition={{ duration: 1 }}
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(20,24,28,0.55) 0%, rgba(8,10,12,0.35) 50%, rgba(20,24,28,0.55) 100%)",
+          }}
+        />
+
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(8,8,10,0.55) 0%, rgba(14,14,16,0.72) 45%, rgba(14,14,16,0.94) 88%, #0E0E10 100%)",
           }}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(8,8,10,0.55) 0%, rgba(14,14,16,0.7) 45%, rgba(14,14,16,0.92) 88%, #0E0E10 100%)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(60% 60% at 50% 25%, rgba(43,179,217,0.18) 0%, transparent 60%)",
+              "radial-gradient(70% 65% at 50% 28%, rgba(43,179,217,0.14) 0%, transparent 65%)",
           }}
         />
       </motion.div>
@@ -96,9 +136,9 @@ export default function Hero() {
         <FloatingOrbs />
       </motion.div>
 
-      <div
+      <motion.div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-grid bg-grid opacity-[0.18] mask-fade-b"
+        className="absolute inset-0 -z-10 bg-grid opacity-[0.18] mask-fade-b"
       />
 
       <NoiseOverlay opacity={0.05} blend="overlay" />
@@ -112,7 +152,7 @@ export default function Hero() {
         }}
       />
 
-      <div
+      <motion.div
         aria-hidden
         className="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-b from-transparent to-bg"
       />
@@ -125,7 +165,7 @@ export default function Hero() {
           animate="show"
           className="relative grid gap-16 lg:grid-cols-12 lg:items-end lg:gap-12"
         >
-          <div className="min-w-0 lg:col-span-8 xl:col-span-9">
+          <motion.div className="min-w-0 lg:col-span-8 xl:col-span-9">
             <motion.div variants={fadeUp} className="flex items-center gap-3">
               <span className="relative inline-flex h-2 w-2">
                 <span className="absolute inset-0 animate-ping rounded-full bg-brand/60" />
@@ -200,7 +240,7 @@ export default function Hero() {
                 Позвонить
               </Button>
             </motion.div>
-          </div>
+          </motion.div>
 
           <motion.aside
             variants={fadeUp}
